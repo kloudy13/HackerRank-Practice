@@ -1,0 +1,135 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Wed Nov 28 19:53:45 2018
+
+@author: klaudia
+"""
+def binarySearch(arr, low, high, x): 
+    """
+    Returns index of x in arr if present (between low and high index), else -1 
+    """
+    if (high >= low): 
+     
+        mid = low + (high - low)//2
+        if x == arr[mid]: 
+            return (mid) 
+        elif(x > arr[mid]): 
+            return binarySearch(arr, (mid + 1), high, x) 
+        else: 
+            return binarySearch(arr, low, (mid -1), x) 
+      
+    return -1
+
+scores= [4, 8, 7] 
+low = [2,4]
+up = [8,4]
+limits = list(zip(low,up))
+
+for tup in limits:
+    
+    if tup[0]==tup[1]:
+        
+
+scores.sort()
+
+# Complete the function below.
+def  jobOffers(scores, lowerLimits, upperLimits):
+    
+    
+# helper fun to find first index larger or equal to element (e) 
+def loIndex(arr, n, e): 
+  lo = 0
+  hi = n-1
+  while (hi >= lo): 
+    mid = int((lo + hi)/2) 
+    if (arr[mid] <= e):
+        lo = mid + 1
+    else: 
+        hi = mid - 1
+  return lo 
+  
+# helper fun to find last index smaller or equal to element (e) 
+def uppIndex(arr, n, e): 
+  lo = 0
+  hi = n-1
+  while (hi >= lo): 
+    mid = int((lo + hi)/2) 
+    if (arr[mid] <= e): 
+      lo = mid + 1
+    else: 
+      hi = mid - 1
+  return hi 
+  
+# function to count elements within given range 
+def  jobOffers(scores, lowerLimits, upperLimits):
+    ans = []
+    n = len(scores) 
+    scores.sort()  # sort 
+    # use modified binary search concept to find elements >=  lower index or <= upper index
+    for x, y in list(zip(lowerLimits,upperLimits)):
+        count = 1 + uppIndex(scores, n, y) - loIndex(scores, n, x); 
+        ans.append(count)
+    return ans 
+    
+    
+####################################################
+# function to find first index >= x 
+def lowerIndex(arr, n, x): 
+  l = 0
+  h = n-1
+  while (l <= h): 
+    mid = int((l + h)/2) 
+    if (arr[mid] >= x): 
+      h = mid - 1
+    else: 
+      l = mid + 1
+  return l 
+  
+  
+# function to find last index <= x 
+def upperIndex(arr, n, x): 
+  l = 0
+  h = n-1
+  while (l <= h): 
+    mid = int((l + h)/2) 
+    if (arr[mid] <= x): 
+      l = mid + 1
+    else: 
+      h = mid - 1
+  return h 
+  
+  
+# function to count elements within given range 
+def  jobOffers(scores, lowerLimits, upperLimits):
+    ans = []
+    n = len(scores) 
+    scores.sort() 
+    for x, y in list(zip(lowerLimits,upperLimits)):
+        count = upperIndex(scores, n, y) - lowerIndex(scores, n, x) +1; 
+        ans.append(count)
+    return ans 
+  
+# driver function 
+arr = [1, 3, 4, 9, 10, 3] 
+  
+# Preprocess array 
+
+
+i = [1, 4]
+j = [9, 12]
+
+print(jobOffers(arr, i, j)) 
+
+#print(countInRange(arr, i, j))   
+## Answer queries 
+#i = 1
+#j = 4
+#print(countInRange(arr, i, j)) 
+#i = 9
+#j = 12
+#print(countInRange(arr, i, j)) 
+
+
+
+

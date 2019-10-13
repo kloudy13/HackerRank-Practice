@@ -1,0 +1,174 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Wed Nov 14 17:28:02 2018
+
+@author: klaudia, PASSENGER TRAFFIC AT AIRPORT
+
+Sample Input
+60 # num of test data rows to follow
+
+MonthNum_1  1226800
+MonthNum_2  926891
+MonthNum_3  782725
+MonthNum_4  1023038
+MonthNum_5  1126293
+MonthNum_6  692565
+
+later ppredict on next 12 months 
+"""
+import numpy as np
+from sklearn import datasets, linear_model
+from sklearn import svm
+from sklearn.linear_model import Ridge
+from sklearn.preprocessing import PolynomialFeatures
+import re
+from sklearn.metrics import accuracy_score
+from sklearn.pipeline import make_pipeline
+
+# data:
+x = [1226800, 926891, 782725, 1023038, 1126293, 692565, 1165880, 1207156, 1129954, 745100, 1059346, 1168555, 1317458, 528045, 1220238, 874557, 1033389, 1034165, 812094, 1351419, 801822, 1044266, 722871, 742100, 839471, 1201199, 796265, 953887, 1124602, 1070181, 1160366, 1131150, 1151813, 1065316, 914800, 1093034, 937898, 991612, 865649, 990565, 965414, 949248, 1168905, 593112, 1156922, 870095, 1023262, 788327, 543605, 510786, 734714, 1133025, 1461091, 635481, 1104107, 844960, 1271967, 574319, 1063900, 724737] 
+idx = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60]
+
+# alternative/ simpler pipeline which also works and retrins two lists of months/ ppl without using regex
+N = int(input())
+
+n_ppl = list()
+months = np.arange(0,N+1)
+
+X_test = np.arange(N+1 ,N+1+12) # predict for next 12 months after the test data N == num
+
+for i in range(1,N+1):
+    n_ppl.append(int(input().split()[1]))
+
+
+# ORIGINAL :
+N = int(input())
+
+n_ppl = list()
+months = list()
+
+X_test = np.arange(N+1 ,N+1+12) # predict for next 12 months after the test data N == num
+
+for i in range(1,N+1):
+    
+    m_tuple = input()
+    s = m_tuple.rstrip()
+    objs = re.search(r'(\D+)(\d+)(\W+)(\d+)', s, re.M|re.I) # if dont wanna do this can  np.arange(0,N+1) and create months separately 
+    months.append(int(objs.group(2)))
+    n_ppl.append(int(objs.group(4)))
+     
+########################################################################################
+    
+clf=svm.SVR(kernel='rbf', C=1000, gamma=0.1)
+
+X_m= np.array(months)
+Y_n = np.array(n_ppl)
+
+X_m = X_m.reshape(X_m.shape[0], 1)
+
+clf.fit(X_m, Y_n)
+
+X_test = np.array(X_test)
+X_test = X_test.reshape(X_test.shape[0], 1)
+Y_pred = clf.predict(X_test)
+
+print(('{:.1f}\n'*len(Y_pred)).format(*Y_pred))
+
+
+
+
+
+
+####################### OLD PROTOTYPES #################################################
+
+import pandas as pd
+import matplotlib.pyplot as plt
+from statsmodels.tsa.stattools import adfuller
+import numpy as np
+import itertools
+import warnings
+import statsmodels.api as sm
+
+##def test_stationarity(timeseries):
+#
+#timeseries = pd.DataFrame(x)
+##Determing rolling statistics
+#rolmean = pd.rolling_mean(timeseries, window=12)
+#rolstd = pd.rolling_std(timeseries, window=12)
+#
+##Plot rolling statistics:
+#plt.plot(timeseries, color='blue',label='Original')
+#plt.plot(rolmean, color='red', label='Rolling Mean')
+#plt.plot(rolstd, color='black', label = 'Rolling Std')
+#plt.legend(loc='best')
+#plt.title('Rolling Mean & Standard Deviation')
+#plt.show(block=False)
+#
+##Perform Dickey-Fuller test:
+#print ('Results of Dickey-Fuller Test:')
+#dftest = adfuller(x, autolag='AIC')
+#dfoutput = pd.Series(dftest[0:4], index=['Test Statistic','p-value','#Lags Used','Number of Observations Used'])
+#for key,value in dftest[4].items():
+#    dfoutput['Critical Value (%s)'%key] = value
+#print (dfoutput)
+
+
+
+# Define the p, d and q parameters to take any value between 0 and 2
+p = d = q = range(0, 5)
+
+# Generate all different combinations of p, q and q triplets
+pdq = list(itertools.product(p, d, q))
+
+# Generate all different combinations of seasonal p, q and q triplets 
+seasonal_pdq = [(x[0], x[1], x[2], 1) for x in list(itertools.product(p, d, q))]
+
+warnings.filterwarnings("ignore") # ignore warning messages when Maximum Likelihood optimization failed to converge
+
+best_pdq = None # init. variables to store results
+best_seasonal_pdq = None
+best_aic = np.inf
+
+for param in pdq:
+    for param_seasonal in seasonal_pdq:
+        try:
+            mod = sm.tsa.statespace.SARIMAX(sth,
+                                            order=param,
+                                            seasonal_order=param_seasonal,
+                                            enforce_stationarity=False,
+                                            enforce_invertibility=False)
+
+            results = mod.fit()
+            # store best parameters:
+            if results.aic < best_aic:
+                best_aic = results.aic
+                best_pdq = param
+                best_seasonal_pdq = param_seasonal                   
+        except:
+            continue    
+            
+print('best SARIMA parameters {}x{} - AIC:{}'.format(best_pdq, best_seasonal_pdq, best_aic))
+
+order = best_pdq
+seasonal_order = best_seasonal_pdq
+
+
+#
+#
+x=[i for i in range(0,20)]
+
+y1 = []
+y2 = []
+
+for x in range(0,20):
+    
+    y1.append((4*x + 33 ) / 5)
+
+    y2.append((20*x - 107)/9 )
+
+
+
+
+
+
